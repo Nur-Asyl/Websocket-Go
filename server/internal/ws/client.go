@@ -14,6 +14,10 @@ type Client struct {
 	Username string `json:"username"`
 }
 
+func (c *Client) Update(message *Message) {
+	c.Message <- message
+}
+
 type Message struct {
 	Content  string `json:"content"`
 	RoomID   string `json:"roomId"`
