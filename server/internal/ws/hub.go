@@ -1,31 +1,5 @@
 package ws
 
-type Room struct {
-	ID        string             `json:"id"`
-	Name      string             `json:"name"`
-	Clients   map[string]*Client `json:"clients"`
-	Observers []Observer
-}
-
-func (r *Room) Register(observer Observer) {
-	r.Observers = append(r.Observers, observer)
-}
-
-func (r *Room) Unregister(observer Observer) {
-	for i, obs := range r.Observers {
-		if obs == observer {
-			r.Observers = append(r.Observers[:i], r.Observers[i+1:]...)
-			break
-		}
-	}
-}
-
-func (r *Room) Notify(message *Message) {
-	for _, observer := range r.Observers {
-		observer.Update(message)
-	}
-}
-
 type Hub struct {
 	Rooms      map[string]*Room
 	Register   chan *Client
@@ -52,7 +26,7 @@ func (h *Hub) Run() {
 				if _, ok := r.Clients[cl.ID]; !ok {
 					r.Clients[cl.ID] = cl
 
-					r.Register(cl)
+					r.Subscribe(cl)
 				}
 			}
 		case cl := <-h.Unregister:
@@ -67,7 +41,7 @@ func (h *Hub) Run() {
 					delete(h.Rooms[cl.RoomID].Clients, cl.ID)
 					close(cl.Message)
 
-					h.Rooms[cl.RoomID].Unregister(cl)
+					h.Rooms[cl.RoomID].Unsubscribe(cl)
 				}
 			}
 		case m := <-h.Broadcast:

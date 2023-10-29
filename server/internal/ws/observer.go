@@ -1,11 +1,11 @@
 package ws
 
-type Observer interface {
+type Subscriber interface {
 	Update(message *Message)
 }
 
-type Subject interface {
-	Register(observer Observer)
-	Unregister(observer Observer)
+type ConcreteSubscriber interface {
+	Subscribe(sub Subscriber)
+	Unsubscribe(sub Subscriber)
 	Notify(message *Message)
 }
